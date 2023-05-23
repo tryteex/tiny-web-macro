@@ -1,0 +1,15 @@
+[package]
+name = "tiny-web-macro"
+authors = ["Volodymyr Zamkovyi <v.zamkovyi@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "tiny-web-macro is a macro library for automatically connecting the web engine for the tiny-web project."
+keywords = ["tiny-web"]
+repository = "https://github.com/tryteex/tiny-web-macro"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "2.0"
