@@ -24,6 +24,7 @@ pub fn addfn(_: TokenStream) -> TokenStream {
         Err(_) => HashMap::new(),
     };
     let mut vec = Vec::new();
+    vec.push(format!("// Add funtions from {}", dir));
     vec.push(
         "let mut app: BTreeMap<i64, BTreeMap<i64, BTreeMap<i64, Act>>> = BTreeMap::new();"
             .to_string(),
@@ -115,6 +116,7 @@ pub fn addmod(_: TokenStream) -> TokenStream {
     };
     // Forms an answer
     let mut vec = Vec::new();
+    vec.push(format!("// Add mods from {}", dir));
     for (key, v) in list {
         vec.push(format!("pub mod {} {{", check_name(key)));
         for f in v {
