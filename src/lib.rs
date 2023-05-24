@@ -23,26 +23,26 @@ pub fn addfn(_: TokenStream) -> TokenStream {
         Ok(l) => l,
         Err(_) => HashMap::new(),
     };
+
     let mut vec = Vec::new();
-    vec.push(format!("// Add funtions from {}", dir));
     vec.push(
-        "let mut app: BTreeMap<i64, BTreeMap<i64, BTreeMap<i64, Act>>> = BTreeMap::new();"
+        "let mut app: std::collections::BTreeMap<i64, std::collections::BTreeMap<i64, std::collections::BTreeMap<i64, tiny_web::sys::action::Act>>> = std::collections::BTreeMap::new();"
             .to_string(),
     );
     for (key, v) in list {
         vec.push(format!(
-            "let mut {}: BTreeMap<i64, BTreeMap<i64, Act>> = BTreeMap::new();",
+            "let mut {}: std::collections::BTreeMap<i64, std::collections::BTreeMap<i64, tiny_web::sys::action::Act>> = std::collections::BTreeMap::new();",
             key
         ));
         for file in v {
             let func = get_func(&dir, &key, &file);
             vec.push(format!(
-                "let mut {}_{}: BTreeMap<i64, Act> = BTreeMap::new();",
+                "let mut {}_{}: std::collections::BTreeMap<i64, tiny_web::sys::action::Act> = std::collections::BTreeMap::new();",
                 key, file
             ));
             for f in func {
                 vec.push(format!(
-                    "{0}_{1}.insert({2}_i64, |action| Box::pin(crate::app::{0}::{1}::{3}(action)));",
+                    "{0}_{1}.insert({2}_i64, |action| Box::pin(app::{0}::{1}::{3}(action)));",
                     key,
                     file,
                     fnv1a_64(&f),
@@ -116,7 +116,6 @@ pub fn addmod(_: TokenStream) -> TokenStream {
     };
     // Forms an answer
     let mut vec = Vec::new();
-    vec.push(format!("// Add mods from {}", dir));
     for (key, v) in list {
         vec.push(format!("pub mod {} {{", check_name(key)));
         for f in v {
