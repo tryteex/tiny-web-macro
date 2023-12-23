@@ -1,13 +1,14 @@
 extern crate proc_macro;
 
 use proc_macro::{Span, TokenStream};
+use quote::quote;
 use std::{
     collections::{hash_map::Entry, HashMap},
     env,
     fs::{read_dir, read_to_string},
     str::FromStr,
 };
-use syn::Error;
+use syn::{parse_macro_input, Error};
 
 /// Recursively build engine system
 #[proc_macro]
@@ -45,18 +46,18 @@ pub fn addfn(_: TokenStream) -> TokenStream {
                     "{0}_{1}.insert({2}_i64, |action| Box::pin(app::{0}::{1}::{3}(action)));",
                     key,
                     file,
-                    fnv1a_64(&f),
+                    fnv1a_64_impl(&f),
                     f
                 ));
             }
             vec.push(format!(
                 "{0}.insert({1}_i64, {0}_{2});",
                 key,
-                fnv1a_64(&file),
+                fnv1a_64_impl(&file),
                 file
             ));
         }
-        vec.push(format!("app.insert({}_i64, {});", fnv1a_64(&key), key));
+        vec.push(format!("app.insert({}_i64, {});", fnv1a_64_impl(&key), key));
     }
     vec.push("return app;".to_owned());
 
@@ -208,7 +209,7 @@ fn error(text: &str) -> TokenStream {
 ///
 /// i64 hash
 #[inline]
-fn fnv1a_64(text: &str) -> i64 {
+fn fnv1a_64_impl(text: &str) -> i64 {
     let mut hash: u64 = 0xcbf29ce484222325;
     let prime: u64 = 0x100000001b3;
 
@@ -217,4 +218,14 @@ fn fnv1a_64(text: &str) -> i64 {
         hash = hash.wrapping_mul(prime);
     }
     unsafe { *(&hash as *const u64 as *const i64) }
+}
+
+/// fnv1a_64 hash function
+/// Apply only for static &str
+#[proc_macro]
+pub fn fnv1a_64_m(params: TokenStream) -> TokenStream {
+    let text = parse_macro_input!(params as syn::LitStr).value();
+    let result = fnv1a_64_impl(&text);
+    let result_token_stream = quote! { #result };
+    result_token_stream.into()
 }

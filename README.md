@@ -41,6 +41,12 @@ tiny_web_macro::addmod!();
 
 into the file `./app/mod.rs`. In addition, it is necessary to add in `main.rs` the use of this module. See the example above.
 
+### For use only with static &str for fnv1a_64
+
+```rust
+tiny_web_macro::fnv1a_64_m!("index"); // -8948777187306027381
+```
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
