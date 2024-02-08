@@ -223,7 +223,7 @@ fn fnv1a_64_impl(text: &str) -> i64 {
 /// fnv1a_64 hash function
 /// Apply only for static &str
 #[proc_macro]
-pub fn fnv1a_64_m(params: TokenStream) -> TokenStream {
+pub fn fnv1a_64(params: TokenStream) -> TokenStream {
     let text = parse_macro_input!(params as syn::LitStr).value();
     let result = fnv1a_64_impl(&text);
     let result_token_stream = quote! { #result };
