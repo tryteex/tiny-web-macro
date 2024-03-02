@@ -26,8 +26,7 @@ pub fn addfn(_: TokenStream) -> TokenStream {
     };
 
     let mut vec = Vec::new();
-    vec.push(
-        "let mut app: std::collections::BTreeMap<i64, std::collections::BTreeMap<i64, std::collections::BTreeMap<i64, tiny_web::sys::action::Act>>> = std::collections::BTreeMap::new();"
+    vec.push("let mut app: std::collections::BTreeMap<i64, std::collections::BTreeMap<i64, std::collections::BTreeMap<i64, tiny_web::sys::action::Act>>> = std::collections::BTreeMap::new();"
             .to_string(),
     );
     for (key, v) in list {
@@ -59,7 +58,7 @@ pub fn addfn(_: TokenStream) -> TokenStream {
         }
         vec.push(format!("app.insert({}_i64, {});", fnv1a_64_impl(&key), key));
     }
-    vec.push("return app;".to_owned());
+    vec.push("\nreturn app;".to_owned());
 
     TokenStream::from_str(&vec.join("\n")).unwrap()
 }
@@ -84,14 +83,16 @@ fn get_func(dir: &str, key: &str, file: &str) -> Vec<String> {
             }
             break;
         }
-        let mut ind = 0;
-        while let Some(i) = &str[ind..].find("pub async fn ") {
-            match &str[ind + i + 13..].find(" ( this : &mut Action ) -> Answer {") {
-                Some(j) => {
-                    vec.push(str[ind + i + 13..ind + i + 13 + j].to_owned());
-                    ind += i + j + 13;
+        for line in str.lines() {
+            if let Some(i) = line.find("pub async fn ") {
+                if let Some(j) = line[i + 13..].find(" ( ") {
+                    if line[i + 13 + j..].contains(" : &mut Action ) -> Answer {") {
+                        let name = &line[i + 13..i + 13 + j];
+                        if name.chars().all(|c| c.is_ascii_lowercase() || c == '_') {
+                            vec.push(line[i + 13..i + 13 + j].to_owned());
+                        }
+                    }
                 }
-                None => break,
             }
         }
     }
