@@ -1,7 +1,7 @@
 [package]
 name = "tiny-web-macro"
 authors = ["Volodymyr Zamkovyi <v.zamkovyi@gmail.com>"]
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 license = "MIT"
 description = "tiny-web-macro is a macro library for automatically connecting a web engine to the web project."

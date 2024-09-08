@@ -3,6 +3,7 @@ extern crate proc_macro;
 use proc_macro::{Span, TokenStream};
 use quote::quote;
 use std::{
+    process::Command,
     collections::{hash_map::Entry, HashMap},
     env,
     fs::{read_dir, read_to_string},
@@ -20,10 +21,7 @@ pub fn addfn(_: TokenStream) -> TokenStream {
         },
         None => return error("Can't fetch the environment variable CARGO_MANIFEST_DIR"),
     };
-    let list = match load_files(&dir) {
-        Ok(l) => l,
-        Err(_) => HashMap::new(),
-    };
+    let list = load_files(&dir).unwrap_or_default();
 
     let mut vec = Vec::new();
     vec.push("let mut app: std::collections::BTreeMap<i64, std::collections::BTreeMap<i64, std::collections::BTreeMap<i64, tiny_web::sys::action::Act>>> = std::collections::BTreeMap::new();"
@@ -227,6 +225,22 @@ fn fnv1a_64_impl(text: &str) -> i64 {
 pub fn fnv1a_64(params: TokenStream) -> TokenStream {
     let text = parse_macro_input!(params as syn::LitStr).value();
     let result = fnv1a_64_impl(&text);
+    let result_token_stream = quote! { #result };
+    result_token_stream.into()
+}
+
+/// Return the version of the Rust compiler
+#[proc_macro]
+pub fn version(_: TokenStream) -> TokenStream {
+    let output = match Command::new("rustc").arg("--version").output() {
+        Ok(output) => output,
+        Err(e) => return error(&format!("Can't execute command `rustc --version`: {}", e)),
+    };
+    let result = String::from_utf8_lossy(&output.stdout);
+    if !result.starts_with("rustc ") {
+        return error(&format!("`rustc --version` returns an incorrect version string: {}", result))
+    }
+
     let result_token_stream = quote! { #result };
     result_token_stream.into()
 }
